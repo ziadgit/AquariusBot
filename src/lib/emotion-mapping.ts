@@ -2,16 +2,16 @@
  * Intelligent mapping system for emotions and commands to robot animations
  */
 
-export type Emotion = 
-  | 'happy' 
-  | 'sad' 
-  | 'angry' 
-  | 'neutral' 
-  | 'excited' 
-  | 'frustrated' 
-  | 'calm' 
-  | 'anxious' 
-  | 'confused' 
+export type Emotion =
+  | 'happy'
+  | 'sad'
+  | 'angry'
+  | 'neutral'
+  | 'excited'
+  | 'frustrated'
+  | 'calm'
+  | 'anxious'
+  | 'confused'
   | 'confident';
 
 export type Command = 

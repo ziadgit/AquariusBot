@@ -1,38 +1,42 @@
-# Jammo
+# Finestral
 
-**Your voice reveals more than your words. Jammo hears both.**
+> A mental health indie game that detects burnout through your voice -- not your words -- and responds with physical actions, not paragraphs.
 
-### [Try it live -- aquariusbot.vercel.app](https://aquariusbot.vercel.app/)
-
-A 3D robot companion powered by five Mistral models working in concert. It transcribes your speech, detects your emotional state directly from the audio signal, and orchestrates an agentic pipeline that responds with physical animation, evidence-based therapeutic techniques, real-world event suggestions, and adaptive gameplay. All in real time.
-
-When Jammo detects stress, it doesn't send a text bubble. It gets up and dances.
+### **[Try the live demo](https://aquariusbot.vercel.app/)** | Built with 5 Mistral models for the Mistral SF Hackathon
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![Mistral](https://img.shields.io/badge/Mistral-5_models-ff7000) ![Three.js](https://img.shields.io/badge/Three.js-3D-049ef4) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)
 
 ---
 
-## Why a Robot
+## Why
 
-73% of developers report burnout symptoms. They cope the way they know how: open another tab, type into another text box, scroll another feed. The intervention is indistinguishable from the problem.
+73% of builders report burnout symptoms ([source](https://www.itpro.com/software/development/burnout-is-now-rife-across-the-software-community-with-almost-half-of-developers-turning-to-self-help-apps)). They cope the way they know how: open another tab, type into another text box, scroll another feed. The intervention is indistinguishable from the problem.
 
-Jammo takes a different route. Voice in, body out. You talk; the robot listens to *how* you say it -- not just what. It reads stress in a steady voice that says "I'm fine." It catches frustration buried under polite words. And it responds the way a good friend would: not with a paragraph, but by doing something -- physically moving, cracking a joke with its whole body, or telling you there's a ramen competition happening across town this Saturday.
+Finestral takes a different route. Voice in, body out. You talk; the robot listens to *how* you say it -- not just what. It reads stress in a steady voice that says "I'm fine." It catches frustration buried under polite words. And it responds the way a good friend would: not with a paragraph, but by doing something -- physically moving, cracking a joke with its whole body, or telling you there's a ramen competition happening across town this Saturday.
 
 The insight is simple: embodied response outperforms text. A dancing robot breaks a negative spiral faster than a chatbot paragraph ever could.
 
 ---
 
+## What Sets This Apart
+
+- **Voice-first emotion detection** -- runs on raw audio waveforms, not transcripts. "I'm fine" said through clenched teeth still registers as `anxious`.
+- **Body before text** -- the robot physically reacts within milliseconds, before the LLM even starts generating. Embodied response breaks negative spirals faster than words.
+- **Therapeutic RAG, not vibes** -- retrieves specific CBT techniques and grounding exercises from a hand-curated wellness knowledge base. No generic "be empathetic" system prompts.
+- **Mood arc tracking** -- understands emotional trajectory across the full conversation, not just the current turn.
+- **Custom Unity `.anim` parser** -- converts left-handed quaternion animations to Three.js clips in the browser. 16 motion-captured animations mapped to 70+ action keywords.
+
+---
+
 ## Mistral Ecosystem
 
-Jammo orchestrates five distinct touchpoints across the Mistral model family. Each model handles a specialized stage of the perception-reasoning-action loop:
+Finestral orchestrates five distinct touchpoints across the Mistral model family. Each model handles a specialized stage of the perception-reasoning-action loop:
 
-| Model | Capability | Role in Pipeline |
-|---|---|---|
-| **Voxtral Mini** | Speech-to-text | Real-time audio transcription from browser microphone |
-| **Voxtral Mini** (multimodal) | Audio emotion classification | Detects emotional tone from raw waveform -- catches stress that text alone misses |
-| **Mistral Small** | Conversational AI | Personality-driven dialogue with embedded physical action directives |
-| **Mistral Small** | Agentic tool orchestration | RAG-augmented empathy agent with tool calling for actions, events, and game state |
-| **Mistral 7B + LoRA** | Fine-tuned empathy specialist | Adapter trained on 16k emotion-labeled conversations (`hyan/mistral-empathy-lora`) |
+| Model | Role in Pipeline |
+|---|---|
+| **Voxtral Mini** | - Real-time speech-to-text from browser microphone<br>- Audio emotion classification directly from raw waveform -- catches stress that text alone misses |
+| **Mistral Small** | - Personality-driven conversational AI with embedded physical action directives<br>- Agentic tool orchestration: RAG-augmented empathy agent with tool calling for actions, events, and game state |
+| **Mistral 7B + QLoRA** | Fine-tuned empathy specialist -- adapter trained on 16k emotion-labeled conversations ([`hyan/mistral-empathy-lora`](https://huggingface.co/hyan/mistral-empathy-lora)) |
 
 The critical design choice: **emotion detection runs on the audio signal, not the transcript.** Voxtral Mini receives the raw waveform and classifies tone directly -- so "I'm fine" said through a clenched jaw still registers as `anxious`. Text-only sentiment analysis would miss it entirely.
 
@@ -41,78 +45,6 @@ The critical design choice: **emotion detection runs on the audio signal, not th
 ## System Architecture
 
 ![AI Companion Platform Architecture](assets/finestral_game_architecture.png)
-
-```
-                              VOICE IN
-                                 |
-                     Browser Mic → WebAudio API
-                                 |
-                           WAV (16kHz mono)
-                                 |
-                                 v
-                  ┌──────────────────────────────┐
-                  │        VOXTRAL MINI           │
-                  │                                │
-                  │   Audio  ──→  Transcript       │
-                  │   Audio  ──→  Emotion Label    │
-                  └──────────────┬─────────────────┘
-                                 │
-                        { text, emotion }
-                                 │
-                                 v
-                  ┌──────────────────────────────┐
-                  │      EMOTION-ACTION AGENT     │
-                  │                                │
-                  │   1. Classify (distress?)      │
-                  │   2. Retrieve (RAG)            │
-                  │   3. Decide (tool selection)   │
-                  │   4. Augment (prompt build)    │
-                  │                                │
-                  │   Tracks emotion history       │
-                  │   across full session          │
-                  └──────┬──────────┬──────────┬───┘
-                         │          │          │
-                    ┌────▼────┐┌────▼────┐┌────▼──────┐
-                    │ ROBOT   ││ EVENT   ││ GAME      │
-                    │ ACTIONS ││ SEARCH  ││ LEVELING  │
-                    │         ││         ││           │
-                    │ dance   ││ ramen   ││ easier    │
-                    │ jump    ││ fest,   ││ when sad, │
-                    │ wave    ││ matcha  ││ harder    │
-                    │ fist    ││ pop-up, ││ when      │
-                    │ pump    ││ yoga    ││ confident │
-                    │ [Built] ││[In Prog]││[In Prog]  │
-                    └────┬────┘└────┬────┘└─────┬─────┘
-                         │          │           │
-                         └──────────┼───────────┘
-                                    │
-                                    v
-                  ┌──────────────────────────────┐
-                  │        MISTRAL SMALL          │
-                  │                                │
-                  │   RAG context                  │
-                  │   + tool results               │
-                  │   + action directives          │
-                  │   → empathetic response        │
-                  │     with *embedded actions*    │
-                  └──────────┬─────────────────────┘
-                             │
-                    ┌────────┴────────┐
-                    v                 v
-          ┌──────────────┐  ┌──────────────────┐
-          │ ELEVENLABS   │  │ 3D ROBOT (Jammo) │
-          │ TTS          │  │                  │
-          │              │  │ 16 animations    │
-          │ emotion-     │  │ emotion glow     │
-          │ adapted      │  │ movement paths   │
-          │ voice params │  │ cosmic aquarium  │
-          └──────────────┘  └──────────────────┘
-                    │                 │
-                    v                 v
-                 VOICE OUT       BODY OUT
-```
-
-Every module is independently swappable. The agent doesn't care whether actions go to a Three.js robot or a physical Unitree; the tool interface is the same.
 
 ---
 
@@ -129,10 +61,10 @@ The agent evaluates each detected emotion against a distress set: `stressed`, `s
 On distress detection, the agent queries a structured therapeutic knowledge base containing:
 
 - **CBT techniques** -- cognitive restructuring, thought challenging, behavioral activation, decatastrophizing
-- **Grounding exercises** -- 5-4-3-2-1 sensory grounding, box breathing, body scan
+- **Grounding exercises** -- 5-4-3-2-1 sensory grounding, box breathing, progressive relaxation
 - **Tech-specific strategies** -- burnout recovery, imposter syndrome patterns, deadline anxiety
 
-Each emotion maps to a curated subset. `anxious` retrieves decatastrophizing + 5-4-3-2-1 + box breathing. `frustrated` retrieves thought challenging + deadline anxiety. The mapping is hand-curated from clinical literature, not generated.
+Each emotion maps to a curated subset. `anxious` retrieves decatastrophizing + 5-4-3-2-1 + box breathing. `frustrated` retrieves thought challenging + deadline anxiety. The mapping is hand-curated from wellness literature, not generated.
 
 ### 3. Decide
 
@@ -166,7 +98,7 @@ The agent tracks emotion history across the full conversation. `checkMoodTrend()
 - `calm → anxious → frustrated` -- "Mood dipped. Worth checking what changed."
 - `sad → sad → sad` -- "Consistently sad across the conversation."
 
-This context feeds back into the prompt. Jammo doesn't just react to the current turn. It understands the arc.
+This context feeds back into the prompt. Finestral doesn't just react to the current turn. It understands the arc.
 
 ---
 
@@ -174,16 +106,14 @@ This context feeds back into the prompt. Jammo doesn't just react to the current
 
 The emotion-action agent operates through a tool-calling architecture. Each tool is a specialized capability the agent invokes based on emotional context and session state:
 
-### Robot Action Orchestrator `[Built]`
-
+### Robot Action Orchestrator
 Selects from 16 motion-captured animations (idle variants, walk, run, jump, wave, dance, celebrate, think, victory pose, and emotion-specific stances). 70+ action keywords parsed from LLM responses map to specific animations with glow colors -- giving the model fine-grained control over body language.
 
 The orchestrator handles two animation channels:
 - **Immediate reaction** -- fires on distress detection, before the LLM responds
 - **Response-embedded actions** -- parsed from `*asterisks*` in the LLM's reply, executed in sequence
 
-### Local Event Discovery `[In Progress]`
-
+### Local Event Discovery
 When the agent detects sustained stress (2+ consecutive negative emotions), it searches for nearby real-world events as concrete, actionable suggestions:
 
 ```
@@ -202,9 +132,8 @@ Tool call: search_local_events(
 
 The agent doesn't say "maybe try going outside." It says "there's a matcha festival in Japantown right now." Specific. Actionable. Low barrier.
 
-### Adaptive Game Leveling `[In Progress]`
-
-Jammo lives inside a procedurally generated cosmic aquarium with interactive elements -- orbiting planets, drifting asteroids, rising bubbles. The game leveling tool adjusts environmental parameters based on emotional state:
+### Adaptive Game Leveling
+Finestral lives inside a procedurally generated cosmic aquarium with interactive elements -- orbiting planets, drifting asteroids, rising bubbles. The game leveling tool adjusts environmental parameters based on emotional state:
 
 | Emotional State | Environment Response | Design Intent |
 |---|---|---|
@@ -212,25 +141,44 @@ Jammo lives inside a procedurally generated cosmic aquarium with interactive ele
 | Neutral | Standard pacing, light engagement | Maintain presence without pressure |
 | Confident / Excited | Faster movement, tighter timing, bonus objectives | Channel the energy productively |
 
-The robot's physical actions trigger environmental scatter effects -- planets wobble, bubbles disperse, asteroids drift -- reinforcing the felt connection between expression and world response. When Jammo dances, the cosmos dances with it.
+The robot's physical actions trigger environmental scatter effects -- planets wobble, bubbles disperse, asteroids drift -- reinforcing the felt connection between expression and world response. When Finestral dances, the cosmos dances with it.
+
+---
+
+## How It Works
+
+```
+    You speak into the mic
+            |
+    [Voxtral Mini] ──> Transcript + Emotion (from raw audio waveform)
+            |
+    [Empathy Agent] ──> Classify ──> Retrieve (CBT/grounding) ──> Decide ──> Augment
+            |                                                         |
+            |                                          Robot acts IMMEDIATELY
+            |                                          (before LLM responds)
+            |
+    [Mistral Small] ──> Therapeutic response + embedded action directives
+            |
+    3D Robot animates in a cosmic aquarium that reacts to your mood
+```
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16, React 19, TypeScript 5 |
-| 3D | Three.js 0.183, React Three Fiber, React Three Drei |
-| Animation | 16 Unity `.anim` files parsed via custom YAML-to-KeyframeTrack converter |
-| Voice capture | WebAudio API, WAV encoder (16kHz mono) |
-| Transcription | Voxtral Mini |
-| Emotion detection | Voxtral Mini (multimodal audio classification) |
-| Chat | Mistral Small |
-| Empathy agent | Custom classify-retrieve-decide-augment pipeline |
-| Knowledge base | In-memory therapeutic KB (CBT, grounding, tech-stress) |
-| Voice synthesis | ElevenLabs Turbo v2.5 (emotion-adapted parameters) |
-| Environment | Procedural cosmic aquarium (instanced mesh, quality tiers) |
+| Function | Layer | Tech |
+|---|---|---|
+| **Gaming** | Framework | Next.js 16, React 19, TypeScript 5 |
+| | 3D | Three.js 0.183, React Three Fiber, React Three Drei |
+| | Animation | 16 Unity `.anim` files parsed via custom YAML-to-KeyframeTrack converter |
+| | Environment | Procedural cosmic aquarium (instanced mesh, quality tiers) |
+| **Voice** | Capture | WebAudio API, WAV encoder (16kHz mono) |
+| | Transcription | Voxtral Mini |
+| | Emotion detection | Voxtral Mini (multimodal audio classification) |
+| | Synthesis | ElevenLabs Turbo v2.5 (emotion-adapted parameters) |
+| **Agentic** | Chat | Mistral Small |
+| | Empathy agent | Custom classify-retrieve-decide-augment pipeline |
+| | Knowledge base | In-memory therapeutic KB (CBT, grounding, tech-stress) |
 
 ### Key Files
 
@@ -280,4 +228,10 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Click the mic. Talk to Jammo.
+Open [http://localhost:3000](http://localhost:3000). Click the mic. Talk to Finestral.
+
+---
+
+## Team
+
+Built by [Ziad](https://github.com/ziadgit) and [Hannah](https://github.com/yanhann10) at the Mistral SF Hackathon.
