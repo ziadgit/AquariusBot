@@ -228,11 +228,24 @@ export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Refs to avoid stale closures in async callbacks (voice transcription)
+  const currentWorldRef = useRef(currentWorld);
+  const gameStateRef = useRef(gameState);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Keep refs in sync with state (for async callbacks like voice transcription)
+  useEffect(() => {
+    currentWorldRef.current = currentWorld;
+  }, [currentWorld]);
+  
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   // Initialize audio element
   useEffect(() => {
@@ -441,7 +454,11 @@ export default function Home() {
       return;
     }
     
-    if (isWarpHomeCommand(text) && currentWorld === 'skyIsland') {
+    // Use refs to get fresh state values (avoids stale closures in async callbacks)
+    const currentWorldValue = currentWorldRef.current;
+    const gameStateValue = gameStateRef.current;
+    
+    if (isWarpHomeCommand(text) && currentWorldValue === 'skyIsland') {
       const userMessage: Message = { role: 'user', content: text };
       setMessages(prev => [...prev, userMessage]);
       setInput('');
@@ -450,7 +467,7 @@ export default function Home() {
     }
     
     // Handle game commands when in Sky Island
-    if (currentWorld === 'skyIsland' && gameState) {
+    if (currentWorldValue === 'skyIsland' && gameStateValue) {
       const userMessage: Message = { role: 'user', content: text };
       setMessages(prev => [...prev, userMessage]);
       setInput('');
