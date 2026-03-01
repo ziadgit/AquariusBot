@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { 
-  type Emotion, 
-  detectCommand, 
+import {
+  type Emotion,
+  type Command,
+  detectCommand,
   getAnimationForInput,
+  commandAnimationMap,
   getResponseEmotion,
   parseResponseActions,
   getPrimaryAction,
@@ -103,7 +105,8 @@ export default function Home() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [quality, setQuality] = useState<QualityLevel>('medium');
-  
+  const [emotionHistory, setEmotionHistory] = useState<string[]>([]);
+
   const robotRef = useRef<RobotControllerRef>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -174,16 +177,39 @@ export default function Home() {
     }
   }, []);
 
+  // Play an immediate uplift animation sequence for distress emotions.
+  // Runs the first command instantly so the user sees a reaction before
+  // the chat response arrives.
+  const playUpliftSequence = useCallback((commands: Command[]) => {
+    if (!robotRef.current || commands.length === 0) return;
+    const first = commands[0];
+    const mapping = commandAnimationMap[first];
+    if (mapping) {
+      robotRef.current.playAnimation(mapping);
+      if (mapping.movement && mapping.movement !== 'none') {
+        robotRef.current.startMovement(mapping.movement);
+      } else {
+        robotRef.current.stopMovement();
+      }
+    }
+  }, []);
+
   // Send message to chat API
   const sendMessage = async (text: string, emotion: Emotion | null = null) => {
     if (!text.trim() || isLoading) return;
 
-    const userMessage: Message = { 
-      role: 'user', 
+    // Track emotion history for the agent
+    const updatedHistory = emotion
+      ? [...emotionHistory, emotion]
+      : emotionHistory;
+    if (emotion) setEmotionHistory(updatedHistory);
+
+    const userMessage: Message = {
+      role: 'user',
       content: text,
       emotion: emotion || undefined,
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -201,15 +227,21 @@ export default function Home() {
             content: m.content,
           })),
           userEmotion: emotion,
+          emotionHistory: updatedHistory,
         }),
       });
 
       const data = await response.json();
-      
+
+      // If the agent flagged distress, play an immediate uplift animation
+      if (data.agentResult?.isDistress && data.agentResult.immediateCommands) {
+        playUpliftSequence(data.agentResult.immediateCommands);
+      }
+
       if (data.content) {
         // Parse the response to extract actions
         const parsed = parseResponseActions(data.content);
-        
+
         const assistantMessage: Message = {
           role: 'assistant',
           content: data.content,
@@ -228,11 +260,11 @@ export default function Home() {
             });
             robotRef.current.stopMovement();
           }
-        } else {
-          // Fall back to emotion-based animation
+        } else if (!data.agentResult?.isDistress) {
+          // Fall back to emotion-based animation (skip if agent already triggered uplift)
           const responseEmotion = emotion ? getResponseEmotion(emotion) : 'neutral';
           const responseMapping = getAnimationForInput(responseEmotion as Emotion, null);
-          
+
           if (robotRef.current) {
             robotRef.current.playAnimation(responseMapping);
             robotRef.current.stopMovement();
