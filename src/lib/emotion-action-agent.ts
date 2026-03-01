@@ -32,38 +32,60 @@ const DISTRESS_EMOTIONS = new Set<string>([
 // Each sequence describes actions the LLM should embed in its response.
 const UPLIFT_SEQUENCES: Record<
   string,
-  { description: string; actions: string[]; commands: Command[] }
+  { description: string; actions: string[]; commands: Command[]; encouragement: string }
 > = {
-  cheer_up: {
-    description: "A short celebratory dance to lift the mood",
-    actions: ["does a little happy dance", "pumps fist encouragingly"],
-    commands: ["dance", "celebrate"],
+  fistpump_sad: {
+    description: "Fist pump to rally someone feeling down",
+    actions: ["pumps fist encouragingly", "does a little victory pose"],
+    commands: ["celebrate"],
+    encouragement:
+      "Validate their feelings first, then lift their spirits. " +
+      "Use phrases like 'I hear you', 'It makes sense you feel this way', " +
+      "then pivot to something forward-looking like 'but hey, you've got this'.",
   },
-  gentle_comfort: {
-    description: "Calm, gentle gestures to show empathy",
-    actions: ["waves warmly", "nods understandingly"],
-    commands: ["wave", "idle"],
+  fistpump_angry: {
+    description: "Fist pump to channel anger into positive energy",
+    actions: ["pumps fist with determination", "stands tall confidently"],
+    commands: ["celebrate"],
+    encouragement:
+      "Acknowledge their frustration is valid. " +
+      "Channel the energy positively: 'That fire in you? That's passion. Let's use it.'",
   },
-  energize: {
-    description: "High-energy moves to break a negative spiral",
-    actions: ["jumps excitedly", "does a victory pose"],
-    commands: ["jump", "celebrate"],
+  fistpump_frustrated: {
+    description: "Fist pump to break through frustration",
+    actions: ["pumps fist and bounces on the spot", "does an encouraging jump"],
+    commands: ["celebrate", "jump"],
+    encouragement:
+      "Normalize the struggle: 'Tough moments build tough people.' " +
+      "Remind them of progress: 'Look how far you've already come.' " +
+      "Suggest one small next step to regain momentum.",
   },
-  playful_distraction: {
-    description: "Silly moves to make the user smile",
-    actions: ["bounces around happily", "does a goofy spin dance"],
-    commands: ["jump", "dance"],
+  fistpump_anxious: {
+    description: "Fist pump to ground and reassure",
+    actions: ["pumps fist gently", "waves warmly"],
+    commands: ["celebrate", "wave"],
+    encouragement:
+      "Ground them with reassurance: 'One step at a time, you're doing fine.' " +
+      "Validate the worry, then reframe: 'Worrying means you care -- and that's a strength.'",
+  },
+  fistpump_confused: {
+    description: "Fist pump to energize through confusion",
+    actions: ["pumps fist enthusiastically", "jumps excitedly"],
+    commands: ["celebrate", "jump"],
+    encouragement:
+      "Reframe confusion as growth: 'Confusion means you're learning something new.' " +
+      "Offer clarity with confidence: 'Let's figure this out together -- we've got this!'",
   },
 };
 
 // Map distress emotions to appropriate uplift sequences.
 const EMOTION_UPLIFT_MAP: Record<string, string> = {
-  stressed: "gentle_comfort",
-  sad: "cheer_up",
-  angry: "gentle_comfort",
-  frustrated: "playful_distraction",
-  anxious: "gentle_comfort",
-  confused: "energize",
+  stressed: "fistpump_frustrated",
+  sad: "fistpump_sad",
+  angry: "fistpump_angry",
+  frustrated: "fistpump_frustrated",
+  anxious: "fistpump_anxious",
+  confused: "fistpump_confused",
 };
 
 // ---------------------------------------------------------------------------
@@ -127,9 +149,10 @@ export function runEmotionActionAgent(
     .join(" or ");
 
   const actionDirective =
-    `The user seems ${emotionLower}. Your goal is to gently lift their spirits.\n` +
+    `The user seems ${emotionLower}. Your goal is to validate their feelings and lift their spirits.\n` +
     `You MUST include at least one physical action in asterisks in your response ` +
     `(e.g. ${actionExamples}) to show empathy through your robot body.\n` +
+    `Encouragement style: ${sequence.encouragement}\n` +
     `Use the therapeutic techniques below as reference -- weave them in naturally, ` +
     `don't dump them verbatim. Keep your tone warm and genuine.\n\n` +
     `--- Retrieved therapeutic techniques ---\n${techniqueContext}\n\n` +

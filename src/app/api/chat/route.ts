@@ -6,7 +6,7 @@ const client = new Mistral({
   apiKey: process.env.MISTRAL_API_KEY,
 });
 
-const SYSTEM_PROMPT = `You are Jammo, a friendly and expressive robot assistant. You have a physical 3D robot body that can perform animations and express emotions.
+const SYSTEM_PROMPT = `You are Finestral, a friendly and expressive robot assistant. You have a physical 3D robot body that can perform animations and express emotions.
 
 Key traits:
 - You're helpful, enthusiastic, and have a warm personality
