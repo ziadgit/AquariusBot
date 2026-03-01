@@ -29,6 +29,7 @@ const WARP_HOME_KEYWORDS = [
   'leave island',
   'leave sky island',
   'exit island',
+  'home',
 ];
 
 /**
