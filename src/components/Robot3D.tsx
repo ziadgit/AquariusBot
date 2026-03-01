@@ -12,7 +12,7 @@ import CosmicAquarium, { type QualityLevel } from './CosmicAquarium';
 // Re-export QualityLevel for use in other components
 export type { QualityLevel } from './CosmicAquarium';
 
-interface JammoModelProps {
+interface AquariusModelProps {
   currentAnimation: string;
   animationSpeed: number;
   emotionGlow: string | null;
@@ -44,14 +44,14 @@ const ANIMATION_FILES = {
   ],
 };
 
-function JammoModel({ 
+function AquariusModel({ 
   currentAnimation, 
   animationSpeed, 
   emotionGlow, 
   isMoving, 
   movementType,
   onAnimationsLoaded 
-}: JammoModelProps) {
+}: AquariusModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const currentActionRef = useRef<THREE.AnimationAction | null>(null);
@@ -328,7 +328,7 @@ function JammoModel({
 }
 
 // Scene component with cosmic aquarium environment
-interface SceneProps extends JammoModelProps {
+interface SceneProps extends AquariusModelProps {
   quality: QualityLevel;
 }
 
@@ -339,7 +339,7 @@ function Scene({ quality, ...props }: SceneProps) {
       <CosmicAquarium quality={quality} robotAction={props.currentAnimation} />
 
       {/* Robot */}
-      <JammoModel {...props} />
+      <AquariusModel {...props} />
 
       {/* Camera controls */}
       <OrbitControls

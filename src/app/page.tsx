@@ -18,7 +18,7 @@ const Robot3D = dynamic(() => import('@/components/Robot3D'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
-      <div className="text-white text-lg animate-pulse">Loading 3D Robot...</div>
+      <div className="text-white text-lg animate-pulse">Loading Aquarius...</div>
     </div>
   ),
 });
@@ -376,8 +376,8 @@ export default function Home() {
       <div className="w-[400px] bg-[#16213e] flex flex-col border-l border-[#0f3460]">
         {/* Header */}
         <div className="p-4 border-b border-[#0f3460]">
-          <h1 className="text-2xl font-bold text-[#e94560]">Jammo</h1>
-          <p className="text-gray-400 text-sm">Your expressive robot companion</p>
+          <h1 className="text-2xl font-bold text-[#e94560]">Aquarius</h1>
+          <p className="text-gray-400 text-sm">A fin-astral companion that helps you feel fine</p>
           
           <div className="mt-3 flex flex-col gap-2">
             {/* Quality selector */}
@@ -417,9 +417,9 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
-              <p className="text-lg mb-2">Say hello to Jammo!</p>
+              <p className="text-lg mb-2">Say hello to Aquarius!</p>
               <p className="text-sm">Try voice commands like &ldquo;wave&rdquo;, &ldquo;jump&rdquo;, or &ldquo;dance&rdquo;</p>
-              <p className="text-sm mt-1">Your emotional tone affects how Jammo responds</p>
+              <p className="text-sm mt-1">Your emotional tone affects how Aquarius responds</p>
             </div>
           )}
           
