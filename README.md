@@ -40,6 +40,8 @@ The critical design choice: **emotion detection runs on the audio signal, not th
 
 ## System Architecture
 
+![AI Companion Platform Architecture](assets/finestral_game_architecture.png)
+
 ```
                               VOICE IN
                                  |
